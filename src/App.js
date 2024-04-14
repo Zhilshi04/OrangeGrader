@@ -18,7 +18,7 @@ const App = () => {
         <div className="w-full h-screen grid grid-rows-12">
             <header className="bg-[#ED7D31] w-full row-span-1 flex justify-around items-center ">
                 <h1 className="text-white text-2xl">Orange Grader</h1>
-                <div className="text-white hover:cursor-pointer px-10 h-full flex items-center justify-center" onClick={toAssignmentList}>
+                <div className="text-white hover:cursor-pointer px-10 h-full flex items-center justify-center hover:bg-white hover:text-[#ED7D31]" onClick={toAssignmentList}>
                     Task
                 </div>
                 <div className="text-white">NULL</div>
