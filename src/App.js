@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import AssignmentList from './component/AssignmentList';
 import Assignment from './component/Assignment';
+import { Link } from "react-router-dom";
+import Dashboard from './Dashboard'
 const App = () => {
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const assingmentList = ["IsPrime","Fibonacci Number","Pyramid"]
@@ -21,7 +23,9 @@ const App = () => {
                 <div className="text-white hover:cursor-pointer px-10 h-full flex items-center justify-center hover:bg-white hover:text-[#ED7D31]" onClick={toAssignmentList}>
                     Task
                 </div>
-                <div className="text-white">NULL</div>
+                <Link to="/dashboard" className="text-white hover:cursor-pointer px-10 h-full flex items-center justify-center hover:bg-white hover:text-[#ED7D31]" onClick={toAssignmentList}>
+                    Dashboard
+                </Link>
                 <div className="text-white bg-white w-10 h-10 rounded-full"></div>
             </header>
             <div className="w-full row-span-11">

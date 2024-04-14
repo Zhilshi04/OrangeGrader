@@ -4,6 +4,7 @@ import * as React from "react";
 import './index.css'
 // import SignIn from './pages/SignIn'
 import App from './App'
+import Dashboard from './Dashboard'
 // import SignUp from './pages/SignUp'
 // import HomePage from './pages/HomePage';
 // import PrivateRoutes from './pages/PrivateRoutes';
@@ -41,9 +42,9 @@ function Home() {
           <Route path='/' element={<App/>}/>
           {/* <Route path='/message' element={<PrivateRoutes/>}>
             <Route index element={<ServerPage />} />
-          </Route>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/signin" element={<SignIn />} /> */}
+          </Route> */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/signin" element={<SignIn />} /> */}
         </Routes>
       </Router>
     </div>
