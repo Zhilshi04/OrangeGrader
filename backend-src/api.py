@@ -48,6 +48,8 @@ def grader(fileName, typeFile, assignmentTitle):
                     error_message = error
                     if output[-1] == "\n" or output[-1] == '\n':
                          output = output[:-1]
+                    output = output.replace("\n","")
+                    expected_output = expected_output.replace("\n","")
                     # print("Output:")
                     # print(output)
                     # print(" ")
