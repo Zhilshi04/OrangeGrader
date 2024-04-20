@@ -4,35 +4,71 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const AddAssignment = () => {
     const [pdfBlob, setPdfBlob] = useState(null);
-
-    // Assuming 'response' contains the API response with PDF data
-
-    // Code to handle PDF data retrieval and conversion to Blob
-    const handlePdfData = (response) => {
-        const pdfData = new Blob([response.data], { type: 'application/pdf' });
-        const url = URL.createObjectURL(pdfData);
-        setPdfBlob(url);
-    };
+    const [pdf, setPdf] = useState(null)
+    const [assignmentTitle, setAssignmentTitle] = useState('');
+    const [inputOutputFiles, setInputOutputFiles] = useState([]);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
+        // setPdfBlob(event.target.files[0])
         if (file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 setPdfBlob(fileReader.result);
             };
             fileReader.readAsDataURL(file);
+            setPdf(file)
         }
     };
-    // Call handlePdfData with your API response
-    // handlePdfData(response);
 
-    return(
+    const handleInputOutputFileUpload = (event) => {
+        const files = Array.from(event.target.files);
+        setInputOutputFiles(files);
+    };
+
+    const addAssignment = () => {
+        const formData = new FormData();
+        formData.append('title', assignmentTitle);
+        formData.append('pdfFile', pdf);
+    
+        // Append each input/output file to the FormData object
+        if (Array.isArray(inputOutputFiles)) {
+            inputOutputFiles.forEach((file, index) => {
+                formData.append(`files`, file);
+            });
+        } else {
+            console.error('inputOutputFiles is not an array');
+            return;
+        }
+    
+        fetch('http://127.0.0.1:5000/addAssignment', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json(); // Assuming the server returns JSON response
+            } else {
+                throw new Error('Failed to add assignment');
+            }
+        })
+        .then(data => {
+            // Handle success, maybe show a success message
+            console.log(data.message);
+        })
+        .catch(error => {
+            // Handle error, maybe show an error message
+            console.error('Error:', error.message);
+        });
+    };
+    
+    
+    return (
         <>
             <div className="h-1/5">
                 <div className="my-5 mx-3">
                     <label>Assignment Title : </label>
-                    <input type="text" />
+                    <input type="text" value={assignmentTitle} onChange={(e) => setAssignmentTitle(e.target.value)} />
                 </div>
                 <div className="my-5 mx-3">
                     <label>Pdf file problem : </label>
@@ -40,8 +76,9 @@ const AddAssignment = () => {
                 </div>
                 <div className="my-5 mx-3">
                     <label>Input and Output file text : </label>
-                    <input type="file" multiple />
+                    <input type="file" multiple onChange={handleInputOutputFileUpload} />
                 </div>
+                <button className="bg-red-100 py-4 px-4 hover:bg-green-100" onClick={addAssignment}>Submit</button>
             </div>
             <div className="h-4/5 grid grid-cols-2">
                 <div className="col-span-1 h-full overflow-y-auto px-5 py-5">

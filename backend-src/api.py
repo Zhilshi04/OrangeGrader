@@ -19,13 +19,20 @@ CORS(app)
 
 UPLOAD_FOLDER = '../file/'  # Updated upload folder path
 PDF_FOLDER = '../pdf_assignment/'
+ASSIGNMENT_FOLDER = '../assignment/'
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+if not os.path.exists(PDF_FOLDER):
+    os.makedirs(PDF_FOLDER)
+
+if not os.path.exists(ASSIGNMENT_FOLDER):
+    os.makedirs(ASSIGNMENT_FOLDER)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PDF_FOLDER'] = PDF_FOLDER
-
+app.config['ASSIGNMENT_FOLDER'] = ASSIGNMENT_FOLDER
 
 def grader(fileName, typeFile, assignmentTitle):
     print(fileName)
@@ -112,6 +119,48 @@ def get_pdf(filename):
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+
+
+@app.route('/addAssignment', methods=['POST'])
+def addAssignment():
+    print(request.data)
+    # uploaded_files = request.files.getlist('file') 
+    # for file in uploaded_files:
+    #     # Save each file to the server or process it as needed
+    #     print(file.filename)
+    #     # file.save('uploads/' + file.filename)
+    # # print(upload_file)
+    if 'pdfFile' not in request.files:
+        print("N")
+        return jsonify({'error': 'No PDF file part'})
+
+    pdfFile = request.files['pdfFile']
+    uploaded_files = request.files.getlist('files')
+    print(pdfFile)
+
+    if pdfFile.filename == '':
+        return jsonify({'error': 'No selected PDF file'})
+
+    if pdfFile:
+        assignmentTitle = request.form['title']
+        pdfFilePath = os.path.join(app.config['PDF_FOLDER'], assignmentTitle + '.pdf')
+        pdfFile.save(pdfFilePath)
+        print("A")
+
+        assignmentFolderPath = os.path.join(app.config['ASSIGNMENT_FOLDER'], assignmentTitle)
+        if not os.path.exists(assignmentFolderPath):
+            os.makedirs(assignmentFolderPath)
+
+        # Save input/output text files
+        for i, file in enumerate(request.files.getlist('files')):
+            print(file.filename)
+            file.save(os.path.join(assignmentFolderPath, f'{file.filename}.txt'))
+
+        # Your additional logic here, e.g., save to database, etc.
+
+        return jsonify({'message': 'Assignment added successfully'}), 200
+
+
 
 
 @app.route('/addUser', methods=['POST'])
