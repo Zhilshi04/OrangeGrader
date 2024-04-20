@@ -2,6 +2,17 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import subprocess
 import os
+from dotenv import load_dotenv
+import pymongo
+import bcrypt
+load_dotenv()
+
+url_db = os.getenv("URL_DB")
+
+client = pymongo.MongoClient(url_db)
+
+db = client["User_info"]
+collection = db["user"]
 
 app = Flask(__name__)
 CORS(app)
@@ -103,8 +114,42 @@ def get_pdf(filename):
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
+@app.route('/addUser', methods=['POST'])
+def add_user():
+    # Get user data from the request body
+    user_data = request.json
+
+    # Check if required fields are present in the request
+    if 'username' not in user_data or 'email' not in user_data or 'password' not in user_data:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # Hash the password before storing it
+    hashed_password = bcrypt.hashpw(user_data['password'].encode('utf-8'), bcrypt.gensalt())
+
+    # Replace the plain text password with the hashed password
+    user_data['password'] = hashed_password.decode('utf-8')
+
+    # Insert the user data into the MongoDB collection
+    result = collection.insert_one(user_data)
+
+    # Get the length of the collection after insertion
+    user_id = collection.count_documents({})
+
+    # Check if the insertion was successful
+    if result.inserted_id:
+        return jsonify({'message': 'User added successfully', 'user_id': user_id}), 201
+    else:
+        return jsonify({'error': 'Failed to add user'}), 500
 
 
 
+
+@app.route('/getAllUser', methods=['GET'])
+def get_all_user():
+    users = list(collection.find())  # Retrieve all users from the collection
+    return jsonify(users)  # Return the users as a JSON response
+
+
+# client.close()
 if __name__ == '__main__':
     app.run(debug=True)
