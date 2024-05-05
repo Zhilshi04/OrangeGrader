@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import subprocess
+import time
 import os
 from dotenv import load_dotenv
 import pymongo
@@ -11,8 +12,10 @@ url_db = os.getenv("URL_DB")
 
 client = pymongo.MongoClient(url_db)
 
-db = client["User_info"]
-collection = db["user"]
+db_user = client["User_info"]
+collection_user = db_user["user"]
+# db_Assignment = client["Assignment_info"]
+collection_assignmentList = db_user["AssignmentList"]
 
 app = Flask(__name__)
 CORS(app)
@@ -51,11 +54,18 @@ def grader(fileName, typeFile, assignmentTitle):
                     return {"error": compile_process.stderr.decode("utf-8")}
 
     count = 0
+    result = []
     error_message = ""
     for z in range(1, 11):
         try:
+            # stime = time.process_time()
+            start_time = time.time()
             with subprocess.Popen(run_command[typeFile], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, text=True) as process:
+                # ftime = time.process_time()
+                end_time = time.time()
+                execution_time = end_time - start_time
+                print(f"Execution time for test {z}: {execution_time} seconds")
                 input_file = os.path.abspath(f"../assignment/{assignmentTitle}/input{z}.txt")
                 output_file = os.path.abspath(f"../assignment/{assignmentTitle}/output{z}.txt")
                 with open(input_file, "r") as i, open(output_file, "r") as o:
@@ -77,10 +87,14 @@ def grader(fileName, typeFile, assignmentTitle):
 
                 if output.strip() == expected_output.strip():
                     count += 1
+                    result.append({"id":count,
+                                   "score":1,
+                                   "time":execution_time})
         except FileNotFoundError as e:
             return {"error": str(e)}
-
-    return {"score": count, "total_tests": 10, "assignment": assignmentTitle}
+    # print(result)
+    return result
+    # return {"score": count, "total_tests": 10, "assignment": assignmentTitle}
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -123,7 +137,7 @@ def get_pdf(filename):
 
 @app.route('/addAssignment', methods=['POST'])
 def addAssignment():
-    print(request.data)
+    # print(request.data)
     # uploaded_files = request.files.getlist('file') 
     # for file in uploaded_files:
     #     # Save each file to the server or process it as needed
@@ -136,7 +150,8 @@ def addAssignment():
 
     pdfFile = request.files['pdfFile']
     uploaded_files = request.files.getlist('files')
-    print(pdfFile)
+    print(request.form['title'])
+    collection_assignmentList.insert_one({"Title":request.form['title']})
 
     if pdfFile.filename == '':
         return jsonify({'error': 'No selected PDF file'})
@@ -179,10 +194,10 @@ def add_user():
     user_data['password'] = hashed_password.decode('utf-8')
 
     # Insert the user data into the MongoDB collection
-    result = collection.insert_one(user_data)
+    result = collection_user.insert_one(user_data)
 
     # Get the length of the collection after insertion
-    user_id = collection.count_documents({})
+    user_id = collection_user.count_documents({})
 
     # Check if the insertion was successful
     if result.inserted_id:
@@ -195,7 +210,7 @@ def add_user():
 
 @app.route('/getAllUser', methods=['GET'])
 def get_all_user():
-    users = list(collection.find())  # Retrieve all users from the collection
+    users = list(collection_user.find())  # Retrieve all users from the collection
     return jsonify(users)  # Return the users as a JSON response
 
 

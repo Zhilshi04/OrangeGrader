@@ -10,6 +10,7 @@ const Assignment = ({ assignment }) => {
     const [file, setFile] = useState(null);
     const [status, setStatus] = useState('');
     const [score, setScore] = useState('');
+    const [result, setResult] = useState([])
     const [pdfUrl, setPdfUrl] = useState('');
     const [pdf,setPdf] = useState(null)
     const [numPages, setNumPages] = useState(null);
@@ -63,8 +64,10 @@ const Assignment = ({ assignment }) => {
             if (response.status === 200) {
                 setReload(true)
                 setStatus('File uploaded successfully!');
-                setScore(response.data.score);
-                setTotalTest(response.data.total_tests);
+                setResult(response.data)
+                console.log(result)
+                // setScore(response.data.score);
+                // setTotalTest(response.data.total_tests);
             } else {
                 setStatus('Failed to upload file.');
             }
@@ -119,7 +122,11 @@ const Assignment = ({ assignment }) => {
                     Upload File
                 </button>
                 <p id="status" className="mt-4">{status}</p>
-                {reload && <p id="score">{score}/10</p>}
+                {reload && 
+                    result.map((element, index) => (
+                        <p key={index}>{element.id +") Score : "+ element.score +" Time : "+(element.time).toFixed(3)} s</p>
+                    ))
+                }
             </div>
         </div>
     );

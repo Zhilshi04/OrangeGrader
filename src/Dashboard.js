@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AddAssignmentComponent from "./component/AddAssignment"; // Renamed component
+import AssignmentList from "./Dashboard_Componet/AssignmentList";
 
 const Dashboard = () => {
     const [showAddAssignment, setShowAddAssignment] = useState(false); // Renamed state variable
@@ -15,7 +15,7 @@ const Dashboard = () => {
                 </div> */}
             </div>
             <div className="col-span-5 bg-blue-100 h-dvh">
-                {showAddAssignment && <AddAssignmentComponent />} {/* Changed component name */}
+                {showAddAssignment && <AssignmentList />} {/* Changed component name */}
             </div>
         </div>
     );
