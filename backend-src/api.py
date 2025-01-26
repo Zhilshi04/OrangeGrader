@@ -3,19 +3,19 @@ from flask_cors import CORS
 import subprocess
 import time
 import os
-from dotenv import load_dotenv
-import pymongo
-import bcrypt
-load_dotenv()
+# from dotenv import load_dotenv
+# import pymongo
+# import bcrypt
+# load_dotenv()
 
-url_db = os.getenv("URL_DB")
+# url_db = os.getenv("URL_DB")
 
-client = pymongo.MongoClient(url_db)
+# client = pymongo.MongoClient(url_db)
 
-db_user = client["User_info"]
-collection_user = db_user["user"]
+# db_user = client["User_info"]
+# collection_user = db_user["user"]
 # db_Assignment = client["Assignment_info"]
-collection_assignmentList = db_user["AssignmentList"]
+# collection_assignmentList = db_user["AssignmentList"]
 
 app = Flask(__name__)
 CORS(app)
@@ -135,83 +135,83 @@ def get_pdf(filename):
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
-@app.route('/addAssignment', methods=['POST'])
-def addAssignment():
-    # print(request.data)
-    # uploaded_files = request.files.getlist('file') 
-    # for file in uploaded_files:
-    #     # Save each file to the server or process it as needed
-    #     print(file.filename)
-    #     # file.save('uploads/' + file.filename)
-    # # print(upload_file)
-    if 'pdfFile' not in request.files:
-        print("N")
-        return jsonify({'error': 'No PDF file part'})
+# @app.route('/addAssignment', methods=['POST'])
+# def addAssignment():
+#     # print(request.data)
+#     # uploaded_files = request.files.getlist('file') 
+#     # for file in uploaded_files:
+#     #     # Save each file to the server or process it as needed
+#     #     print(file.filename)
+#     #     # file.save('uploads/' + file.filename)
+#     # # print(upload_file)
+#     if 'pdfFile' not in request.files:
+#         print("N")
+#         return jsonify({'error': 'No PDF file part'})
 
-    pdfFile = request.files['pdfFile']
-    uploaded_files = request.files.getlist('files')
-    print(request.form['title'])
-    collection_assignmentList.insert_one({"Title":request.form['title']})
+#     pdfFile = request.files['pdfFile']
+#     uploaded_files = request.files.getlist('files')
+#     print(request.form['title'])
+#     collection_assignmentList.insert_one({"Title":request.form['title']})
 
-    if pdfFile.filename == '':
-        return jsonify({'error': 'No selected PDF file'})
+#     if pdfFile.filename == '':
+#         return jsonify({'error': 'No selected PDF file'})
 
-    if pdfFile:
-        assignmentTitle = request.form['title']
-        pdfFilePath = os.path.join(app.config['PDF_FOLDER'], assignmentTitle + '.pdf')
-        pdfFile.save(pdfFilePath)
-        print("A")
+#     if pdfFile:
+#         assignmentTitle = request.form['title']
+#         pdfFilePath = os.path.join(app.config['PDF_FOLDER'], assignmentTitle + '.pdf')
+#         pdfFile.save(pdfFilePath)
+#         print("A")
 
-        assignmentFolderPath = os.path.join(app.config['ASSIGNMENT_FOLDER'], assignmentTitle)
-        if not os.path.exists(assignmentFolderPath):
-            os.makedirs(assignmentFolderPath)
+#         assignmentFolderPath = os.path.join(app.config['ASSIGNMENT_FOLDER'], assignmentTitle)
+#         if not os.path.exists(assignmentFolderPath):
+#             os.makedirs(assignmentFolderPath)
 
-        # Save input/output text files
-        for i, file in enumerate(request.files.getlist('files')):
-            print(file.filename)
-            file.save(os.path.join(assignmentFolderPath, f'{file.filename}.txt'))
+#         # Save input/output text files
+#         for i, file in enumerate(request.files.getlist('files')):
+#             print(file.filename)
+#             file.save(os.path.join(assignmentFolderPath, f'{file.filename}.txt'))
 
-        # Your additional logic here, e.g., save to database, etc.
+#         # Your additional logic here, e.g., save to database, etc.
 
-        return jsonify({'message': 'Assignment added successfully'}), 200
-
-
-
-
-@app.route('/addUser', methods=['POST'])
-def add_user():
-    # Get user data from the request body
-    user_data = request.json
-
-    # Check if required fields are present in the request
-    if 'username' not in user_data or 'email' not in user_data or 'password' not in user_data:
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    # Hash the password before storing it
-    hashed_password = bcrypt.hashpw(user_data['password'].encode('utf-8'), bcrypt.gensalt())
-
-    # Replace the plain text password with the hashed password
-    user_data['password'] = hashed_password.decode('utf-8')
-
-    # Insert the user data into the MongoDB collection
-    result = collection_user.insert_one(user_data)
-
-    # Get the length of the collection after insertion
-    user_id = collection_user.count_documents({})
-
-    # Check if the insertion was successful
-    if result.inserted_id:
-        return jsonify({'message': 'User added successfully', 'user_id': user_id}), 201
-    else:
-        return jsonify({'error': 'Failed to add user'}), 500
+#         return jsonify({'message': 'Assignment added successfully'}), 200
 
 
 
 
-@app.route('/getAllUser', methods=['GET'])
-def get_all_user():
-    users = list(collection_user.find())  # Retrieve all users from the collection
-    return jsonify(users)  # Return the users as a JSON response
+# @app.route('/addUser', methods=['POST'])
+# def add_user():
+#     # Get user data from the request body
+#     user_data = request.json
+
+#     # Check if required fields are present in the request
+#     if 'username' not in user_data or 'email' not in user_data or 'password' not in user_data:
+#         return jsonify({'error': 'Missing required fields'}), 400
+
+#     # Hash the password before storing it
+#     hashed_password = bcrypt.hashpw(user_data['password'].encode('utf-8'), bcrypt.gensalt())
+
+#     # Replace the plain text password with the hashed password
+#     user_data['password'] = hashed_password.decode('utf-8')
+
+#     # Insert the user data into the MongoDB collection
+#     result = collection_user.insert_one(user_data)
+
+#     # Get the length of the collection after insertion
+#     user_id = collection_user.count_documents({})
+
+#     # Check if the insertion was successful
+#     if result.inserted_id:
+#         return jsonify({'message': 'User added successfully', 'user_id': user_id}), 201
+#     else:
+#         return jsonify({'error': 'Failed to add user'}), 500
+
+
+
+
+# @app.route('/getAllUser', methods=['GET'])
+# def get_all_user():
+#     users = list(collection_user.find())  # Retrieve all users from the collection
+#     return jsonify(users)  # Return the users as a JSON response
 
 
 # client.close()
