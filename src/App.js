@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import Dashboard from './Dashboard'
 const App = () => {
     const [selectedAssignment, setSelectedAssignment] = useState(null);
-    const assingmentList = ["IsPrime","Fibonacci Number","Pyramid"]
+    const assingmentList = ["IsPrime","Fibonacci Number","Pyramid","CuttingTree"]
 
     const toAssignment = (assignment) => {
         setSelectedAssignment(assignment); // Update the selected assignment when clicked
